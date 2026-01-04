@@ -1,0 +1,12 @@
+numpy
+pandas
+scikit-learn
+nltk
+regex
+torch
+transformers
+sentencepiece
+lime
+shap
+streamlit
+joblib
