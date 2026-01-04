@@ -11,6 +11,10 @@ env/
 *.pkl
 *.joblib
 
+# Allow trained models
+!models/
+!models/*.pkl
+
 # OS
 .DS_Store
 Thumbs.db
