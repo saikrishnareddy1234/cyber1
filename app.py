@@ -10,11 +10,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------- MOBILE VIEWPORT FIX ----------
-st.markdown("""
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-""", unsafe_allow_html=True)
-
 # ---------------- SESSION STATE ----------------
 if "page" not in st.session_state:
     st.session_state.page = "welcome"
@@ -26,21 +21,32 @@ def add_bg(image_file):
 
     st.markdown(f"""
     <style>
+    /* DESKTOP BACKGROUND */
     .stApp {{
         background:
             linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
             url("data:image/jpg;base64,{encoded}");
         background-size: cover;
         background-position: center;
-        background-attachment: scroll;
+        background-attachment: fixed;
     }}
+
+    /* MOBILE: REMOVE BACKGROUND IMAGE */
+    @media (max-width: 768px) {{
+        .stApp {{
+            background: linear-gradient(rgba(0,0,0,0.92), rgba(0,0,0,0.92));
+        }}
+    }}
+
     html, body {{
         overflow-x: hidden;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-add_bg("cyber.jpg")
+    return encoded
+
+bg_encoded = add_bg("cyber.jpg")
 
 # =================================================
 # =============== WELCOME PAGE ====================
@@ -50,7 +56,6 @@ def welcome_page():
     <style>
     .welcome-box {
         min-height: 100svh;
-        height: auto;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -68,42 +73,50 @@ def welcome_page():
     .welcome-box p {
         font-size: 22px;
         opacity: 0.9;
-        margin-bottom: 45px;
+        margin-bottom: 30px;
     }
 
-    .welcome-btn button {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        border-radius: 20px;
-        padding: 18px 46px;
-        font-size: 22px;
-        font-weight: 600;
-        box-shadow: 0 20px 45px rgba(0,160,255,0.6);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .welcome-btn button:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 28px 60px rgba(0,180,255,0.85);
+    /* MOBILE LOCK IMAGE */
+    .mobile-lock {
+        display: none;
     }
 
     @media (max-width: 768px) {
         .welcome-box h1 {
             font-size: 36px;
         }
+
         .welcome-box p {
             font-size: 16px;
+        }
+
+        .mobile-lock {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .mobile-lock img {
+            width: 85%;
+            max-width: 320px;
+            opacity: 0.9;
         }
     }
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div class="welcome-box">
         <h1>🛡️ X-MailGuard</h1>
         <p>
         Multilingual Email Threat Detection System<br>
         English • Telugu • French
         </p>
+
+        <!-- MOBILE FULL LOCK IMAGE -->
+        <div class="mobile-lock">
+            <img src="data:image/jpg;base64,{bg_encoded}" alt="Security Lock">
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -118,15 +131,12 @@ def welcome_page():
 # =================================================
 def main_app():
 
-    # LOAD MODELS
     tfidf = joblib.load("models/tfidf.pkl")
     model = joblib.load("models/rf_model.pkl")
     label_encoder = joblib.load("models/label_encoder.pkl")
 
-    # ---------------- GLOBAL CSS ----------------
     st.markdown("""
     <style>
-
     label, h3, p, li {
         color: #eaf2ff !important;
     }
@@ -140,9 +150,6 @@ def main_app():
         .block-container {
             padding: 1.2rem 1rem;
         }
-        .header {
-            padding: 28px;
-        }
     }
 
     .header {
@@ -151,75 +158,20 @@ def main_app():
         border-radius: 26px;
         text-align: center;
         color: white;
-        box-shadow: 0 18px 50px rgba(0,0,0,0.85);
         margin-bottom: 45px;
     }
 
     .card {
         background: rgba(12, 20, 30, 0.94);
-        backdrop-filter: blur(18px);
         padding: 34px;
         border-radius: 22px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         margin-bottom: 30px;
     }
 
-    div[data-testid="InputInstructions"] {
-        display: none !important;
-    }
-
-    div[data-testid="stTextArea"] textarea {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border-radius: 14px !important;
-        border: 1.8px solid #d0d7e2 !important;
-        padding: 20px !important;
-        font-size: 16px !important;
-    }
-
-    button[kind="primary"] {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        border-radius: 14px;
-        height: 3.3em;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .result-safe {
-        background: linear-gradient(90deg, rgba(46,204,113,0.35), rgba(46,204,113,0.15));
-        border-left: 8px solid #2ecc71;
-        padding: 20px 26px;
-        border-radius: 18px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #d9ffe9;
-    }
-
-    .result-danger {
-        background: linear-gradient(90deg, rgba(231,76,60,0.35), rgba(231,76,60,0.15));
-        border-left: 8px solid #e74c3c;
-        padding: 20px 26px;
-        border-radius: 18px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #ffd7d2;
-    }
-
-    .result-confidence {
-        margin-top: 14px;
-        background: rgba(0,114,255,0.22);
-        padding: 14px 20px;
-        border-radius: 14px;
-        font-size: 18px;
-        color: #e3efff;
-    }
-
     footer { visibility: hidden; }
-
     </style>
     """, unsafe_allow_html=True)
 
-    # HEADER
     st.markdown("""
     <div class="header">
         <h1>🛡️ X-MailGuard</h1>
@@ -234,11 +186,7 @@ def main_app():
 
     with left:
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        email_text = st.text_area(
-            "📧 Email Content",
-            height=260,
-            placeholder="Paste the email content here for security analysis..."
-        )
+        email_text = st.text_area("📧 Email Content", height=260)
         analyze = st.button("🔍 Analyze Email", type="primary", use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -253,38 +201,23 @@ def main_app():
         """)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    if analyze:
-        if email_text.strip() == "":
-            st.warning("⚠️ Please enter an email to analyze.")
-        else:
-            clean = preprocess(email_text)
-            X = tfidf.transform([clean])
-            pred = model.predict(X)[0]
-            label = label_encoder.inverse_transform([pred])[0]
-            confidence = max(model.predict_proba(X)[0])
+    if analyze and email_text.strip():
+        clean = preprocess(email_text)
+        X = tfidf.transform([clean])
+        pred = model.predict(X)[0]
+        label = label_encoder.inverse_transform([pred])[0]
+        confidence = max(model.predict_proba(X)[0])
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-
-            if label.lower() == "safe":
-                st.markdown('<div class="result-safe">✅ SAFE EMAIL</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="result-danger">🚨 {label.upper()}</div>', unsafe_allow_html=True)
-
-            st.markdown(
-                f'<div class="result-confidence">📊 Confidence Score: <b>{confidence:.2f}</b></div>',
-                unsafe_allow_html=True
-            )
-
-            st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-    <p style="text-align:center; color:#bbb; margin-top:40px;">
-    X-MailGuard © 2026 | National-Level Cybersecurity Project
-    </p>
-    """, unsafe_allow_html=True)
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown(
+            "✅ SAFE EMAIL" if label.lower() == "safe" else f"🚨 {label.upper()}",
+            unsafe_allow_html=True
+        )
+        st.markdown(f"Confidence: {confidence:.2f}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # =================================================
-# =============== PAGE ROUTER =====================
+# =============== ROUTER ==========================
 # =================================================
 if st.session_state.page == "welcome":
     welcome_page()
