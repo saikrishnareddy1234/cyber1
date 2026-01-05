@@ -32,7 +32,7 @@ def add_bg(image_file):
     </style>
     """, unsafe_allow_html=True)
 
-add_bg("cyber.jpg")
+add_bg("cyber1.jpg")
 
 # =================================================
 # =============== WELCOME PAGE ====================
