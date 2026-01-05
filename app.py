@@ -10,6 +10,11 @@ st.set_page_config(
     layout="wide"
 )
 
+# ---------- MOBILE VIEWPORT FIX ----------
+st.markdown("""
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+""", unsafe_allow_html=True)
+
 # ---------------- SESSION STATE ----------------
 if "page" not in st.session_state:
     st.session_state.page = "welcome"
@@ -27,7 +32,10 @@ def add_bg(image_file):
             url("data:image/jpg;base64,{encoded}");
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        background-attachment: scroll;
+    }}
+    html, body {{
+        overflow-x: hidden;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -41,13 +49,15 @@ def welcome_page():
     st.markdown("""
     <style>
     .welcome-box {
-        height: 80vh;
+        min-height: 100svh;
+        height: auto;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
         text-align: center;
         color: white;
+        padding: 1rem;
     }
 
     .welcome-box h1 {
@@ -74,6 +84,15 @@ def welcome_page():
     .welcome-btn button:hover {
         transform: translateY(-4px);
         box-shadow: 0 28px 60px rgba(0,180,255,0.85);
+    }
+
+    @media (max-width: 768px) {
+        .welcome-box h1 {
+            font-size: 36px;
+        }
+        .welcome-box p {
+            font-size: 16px;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -113,7 +132,17 @@ def main_app():
     }
 
     .block-container {
-        padding: 2.5rem 6rem;
+        padding: 2.5rem 4rem;
+        max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .block-container {
+            padding: 1.2rem 1rem;
+        }
+        .header {
+            padding: 28px;
+        }
     }
 
     .header {
@@ -139,7 +168,6 @@ def main_app():
         display: none !important;
     }
 
-    /* TEXTAREA */
     div[data-testid="stTextArea"] textarea {
         background: #ffffff !important;
         color: #000000 !important;
@@ -147,36 +175,16 @@ def main_app():
         border: 1.8px solid #d0d7e2 !important;
         padding: 20px !important;
         font-size: 16px !important;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
-    div[data-testid="stTextArea"] textarea:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-    }
-
-    div[data-testid="stTextArea"] textarea:focus {
-        outline: none !important;
-        border-color: #00b4ff !important;
-        box-shadow: 0 14px 36px rgba(0,140,255,0.45);
-    }
-
-    /* BUTTON */
     button[kind="primary"] {
         background: linear-gradient(90deg, #00c6ff, #0072ff);
         border-radius: 14px;
         height: 3.3em;
         font-size: 18px;
         font-weight: 600;
-        transition: transform 0.2s ease, box-shadow 0.25s ease;
     }
 
-    button[kind="primary"]:hover {
-        box-shadow: 0 12px 30px rgba(0,150,255,0.55);
-        transform: translateY(-2px);
-    }
-
-    /* RESULTS */
     .result-safe {
         background: linear-gradient(90deg, rgba(46,204,113,0.35), rgba(46,204,113,0.15));
         border-left: 8px solid #2ecc71;
@@ -185,7 +193,6 @@ def main_app():
         font-size: 22px;
         font-weight: 700;
         color: #d9ffe9;
-        box-shadow:none;
     }
 
     .result-danger {
@@ -196,7 +203,6 @@ def main_app():
         font-size: 22px;
         font-weight: 700;
         color: #ffd7d2;
-        box-shadow:none;
     }
 
     .result-confidence {
